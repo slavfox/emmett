@@ -16,6 +16,23 @@ MODEL_PATH = Path(DATA_DIR / "model.json")
 REVERSE_MODEL_PATH = Path(DATA_DIR / "reverse_model.json")
 OWNER_ID = 669078523226488833
 
+# Chance to respond to a message without being prompted
+UNPROMPTED_RESPONSE_PROBABILITY = 0.025
+# Chance to respond to a message when mentioned by name
+EMMETT_RESPONSE_PROBABILITY = 0.15
+# Chance to use a random word from the message as context
+CONTEXT_RESPONSE_PROBABILITY = 0.8
+# Chance to include the author's nickname in the context
+AUTHOR_RESPONSE_PROBABILITY = 0.4
+# Chance to generate a prefix for the context
+START_RESPONSE_PROBABILITY = 0.8
+# Chance to generate a suffix for the context
+END_RESPONSE_PROBABILITY = 0.8
+# Chance to append an emoji
+EMOJI_PROBABILITY = 0.1
+# Chance to use a random top 100 Steam game as the status
+STEAM_STATUS_PROBABILITY = 0.4
+
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LOGGING_LEVEL = logging.INFO
 
@@ -42,6 +59,8 @@ EMOJI = [
     ":bone:",
     ":nose::astronaut:",
     ":hot_face:",
+    ":eye:",
+    ":eyes:",
 ]
 
 PRESENCES = [

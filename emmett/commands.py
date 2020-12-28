@@ -8,6 +8,7 @@ import random
 import socket
 import subprocess
 import sys
+from textwrap import dedent
 from time import perf_counter
 
 import psutil
@@ -31,6 +32,16 @@ def command(regex):
     return decorator
 
 
+def owner_only(command):
+    def decorated(bot, message):
+        if message.author.id != OWNER_ID:
+            return await message.channel.send(
+                f"Sorry, only fox is authorized to do this "
+                f"{random.choice(EMOJI)}"
+            )
+        return await command(bot, message)
+
+
 @command("^choose")
 async def choose_command(bot, message):
     try:
@@ -42,6 +53,7 @@ async def choose_command(bot, message):
 
 
 @command("^change status$")
+@owner_only
 async def change_status(bot, message):
     activity_name = await cycle_presence(bot)
     return await message.channel.send(
@@ -51,12 +63,11 @@ async def change_status(bot, message):
 
 @command("^current vibe$")
 async def current_vibe(bot, message):
-    return await message.channel.send(
-        f"Current vibe: {vibe()}"
-    )
+    return await message.channel.send(f"Current vibe: {vibe()}")
 
 
 @command("^back up your model")
+@owner_only
 async def backup(bot, message):
     start = perf_counter()
     await message.channel.send("Backing up model... :floppy_disk:")
@@ -68,12 +79,8 @@ async def backup(bot, message):
 
 
 @command("^reboot$")
+@owner_only
 async def reboot(bot, message):
-    if message.author.id != OWNER_ID:
-        return await message.channel.send(
-            f"Sorry, only fox is authorized to do this "
-            f"{random.choice(EMOJI)}"
-        )
     await message.channel.send("Shutdown in progress...")
     bot.save_corpus()
     await message.channel.send("Corpus backed up :white_check_mark:")
@@ -95,19 +102,23 @@ async def diagnostic(bot, message):
         REVERSE_MODEL_PATH
     )
     return await message.channel.send(
-        f"""`emmett@{socket.gethostname()}`
-{uptime}
-Running on: 
-```
-{sys.version}
-```
-CPU usage: `{psutil.cpu_percent():n}%`
-Memory usage: `{virtual_memory.percent}% ({used_memory:n} MiB)`
-System temperature: `{system_temp()}°C`
-
-Latency: `{bot.latency:n}`
-Model size: `{model_size/1_048_576:.3f} MiB`
-Current vibe: {vibe()}
-
-Diagnostic took: `{perf_counter() - start:n}` seconds"""
+        dedent(
+            f"""\
+        `emmett@{socket.gethostname()}`
+        {uptime}
+        Running on: 
+        ```
+        {sys.version}
+        ```
+        CPU usage: `{psutil.cpu_percent():n}%`
+        Memory usage: `{virtual_memory.percent}% ({used_memory:n} MiB)`
+        System temperature: `{system_temp()}°C`
+        
+        Latency: `{bot.latency*1000:n} ms`
+        Model size: `{model_size/1_048_576:.3f} MiB`
+        Current vibe: {vibe()}
+        
+        Diagnostic took: `{(perf_counter() - start)*1000:n} s`
+        """
+        )
     )

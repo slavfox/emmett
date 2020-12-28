@@ -8,7 +8,13 @@ import random
 from typing import List, Tuple
 
 import markovify
-from emmett.settings import EMOJI
+from emmett.settings import (
+    AUTHOR_RESPONSE_PROBABILITY,
+    CONTEXT_RESPONSE_PROBABILITY,
+    EMOJI,
+    END_RESPONSE_PROBABILITY,
+    START_RESPONSE_PROBABILITY,
+)
 
 logger = logging.getLogger("emmett")
 
@@ -66,9 +72,9 @@ def make_response(emmett, message, author=""):
     if message.startswith("emmett"):
         message = message[len("emmett") :]
     msg = None
-    if random.random() < 0.4:
+    if random.random() < AUTHOR_RESPONSE_PROBABILITY:
         message += f" {author}"
-    if random.random() < 0.8:
+    if random.random() < CONTEXT_RESPONSE_PROBABILITY:
         logger.debug("Trying to respond with context")
         choices, weights = get_start_choices(message)
         for i in range(10):
@@ -76,15 +82,16 @@ def make_response(emmett, message, author=""):
             end = ""
             word = random.choices(choices, weights)[0]
             logging.debug(f"Attempt %s: using '%s' as seed", i, word)
-            try:
-                start = emmett.reverse_corpus.make_sentence_with_start(
-                    word[::-1], strict=False
-                )[::-1]
-            except KeyError:
-                pass
-            except (markovify.text.ParamError, ValueError) as e:
-                pass
-            if random.random() < 0.8:
+            if random.random() < START_RESPONSE_PROBABILITY:
+                try:
+                    start = emmett.reverse_corpus.make_sentence_with_start(
+                        word[::-1], strict=False
+                    )[::-1]
+                except KeyError:
+                    pass
+                except (markovify.text.ParamError, ValueError) as e:
+                    pass
+            if random.random() < END_RESPONSE_PROBABILITY:
                 try:
                     word = random.choices(choices, weights)[0]
                     end = emmett.corpus.make_sentence_with_start(

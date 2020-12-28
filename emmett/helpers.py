@@ -7,15 +7,22 @@ import json
 import random
 import re
 import subprocess
+from time import time
 from urllib.error import URLError
 from urllib.request import urlopen
-from time import time
 
 import discord
-from emmett.settings import CHOICE_MSGS, PRESENCES, EMOJI
+from emmett.settings import (
+    CHOICE_MSGS,
+    EMOJI,
+    PRESENCES,
+    STEAM_STATUS_PROBABILITY,
+)
+
 
 def vibe():
-    return EMOJI[int(time()/100) % len(EMOJI)]
+    return EMOJI[int(time() / 100) % len(EMOJI)]
+
 
 def system_temp():
     try:
@@ -55,7 +62,7 @@ def choose(msg: discord.Message):
 
 async def cycle_presence(bot):
     activity = None
-    if random.random() < 0.4:
+    if random.random() < STEAM_STATUS_PROBABILITY:
         try:
             activity = discord.Game(get_random_top100_steam_game())
         except (URLError, ValueError):

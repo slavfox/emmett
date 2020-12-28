@@ -16,8 +16,10 @@ from emmett.commands import COMMANDS
 from emmett.markov import Text, corpus_plus_sentence, make_response
 from emmett.settings import (
     DISCORD_TOKEN,
+    EMMETT_RESPONSE_PROBABILITY,
     MODEL_PATH,
     REVERSE_MODEL_PATH,
+    UNPROMPTED_RESPONSE_PROBABILITY,
 )
 from helpers import cycle_presence
 
@@ -58,6 +60,8 @@ class Emmett(discord.Client):
                 return await self.process_command(message)
             except ValueError:
                 pass
+        elif content == "oof":
+            return await message.channel.send("oof!")
         content = self.sanitize(content)
         response = self.maybe_respond(
             content,
@@ -73,8 +77,10 @@ class Emmett(discord.Client):
     def maybe_respond(self, prompt: str, author, forced=False):
         will_respond = forced
         if (not will_respond) and "emmett" in prompt:
-            will_respond = random.random() < 0.15
-        will_respond = will_respond or (random.random() < 0.025)
+            will_respond = random.random() < EMMETT_RESPONSE_PROBABILITY
+        will_respond = will_respond or (
+            random.random() < UNPROMPTED_RESPONSE_PROBABILITY
+        )
         if not will_respond:
             return None
 
