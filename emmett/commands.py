@@ -33,13 +33,14 @@ def command(regex):
 
 
 def owner_only(command):
-    def decorated(bot, message):
+    async def decorated(bot, message):
         if message.author.id != OWNER_ID:
             return await message.channel.send(
                 f"Sorry, only fox is authorized to do this "
                 f"{random.choice(EMOJI)}"
             )
         return await command(bot, message)
+    return decorated
 
 
 @command("^choose")
