@@ -109,7 +109,7 @@ async def diagnostic(bot, message):
         {uptime}
         Running on: 
         ```
-        {sys.version}
+        {{}}
         ```
         CPU usage: `{psutil.cpu_percent():n}%`
         Memory usage: `{virtual_memory.percent}% ({used_memory:n} MiB)`
@@ -121,5 +121,5 @@ async def diagnostic(bot, message):
         
         Diagnostic took: `{(perf_counter() - start)*1000:n} ms`
         """
-        )
+        ).format(sys.version)
     )
