@@ -119,7 +119,7 @@ async def diagnostic(bot, message):
         Model size: `{model_size/1_048_576:.3f} MiB`
         Current vibe: {vibe()}
         
-        Diagnostic took: `{(perf_counter() - start)*1000:n} s`
+        Diagnostic took: `{(perf_counter() - start)*1000:n} ms`
         """
         )
     )
