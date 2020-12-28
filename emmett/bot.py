@@ -20,6 +20,7 @@ from emmett.settings import (
     MODEL_PATH,
     REVERSE_MODEL_PATH,
     UNPROMPTED_RESPONSE_PROBABILITY,
+    DATA_DIR
 )
 from helpers import cycle_presence
 
@@ -39,13 +40,6 @@ class Emmett(discord.Client):
             self.reverse_corpus = Text.from_dict(json.load(f))
         atexit.register(self.save_corpus)
 
-    async def process_command(self, message: discord.Message):
-        command = message.content.lower()[len("emmett: ") :]
-        for regex, coro in COMMANDS.items():
-            if re.match(regex, command):
-                return await coro(self, message)
-        raise ValueError("Not a command!")
-
     async def on_ready(self):
         logger.info("Successfully logged in as %s", self.user)
         self.cycle_presence.start()
@@ -61,7 +55,7 @@ class Emmett(discord.Client):
             except ValueError:
                 pass
         elif content == "oof":
-            return await message.channel.send("oof!")
+            return await self.oof(message)
         content = self.sanitize(content)
         response = self.maybe_respond(
             content,
@@ -73,6 +67,22 @@ class Emmett(discord.Client):
             await message.channel.send(response)
         if not self.user in message.mentions:
             self.learn_from(content)
+
+    async def process_command(self, message: discord.Message):
+        command = message.content.lower()[len("emmett: ") :]
+        for regex, coro in COMMANDS.items():
+            if re.match(regex, command):
+                return await coro(self, message)
+        raise ValueError("Not a command!")
+
+    @staticmethod
+    async def oof(message: discord.Message):
+        oof_img = random.choice(list(DATA_DIR.glob("oofs/*")))
+        with oof_img.open("rb") as f:
+            await message.channel.send(
+                "oof!",
+                file=discord.File(f)
+            )
 
     def maybe_respond(self, prompt: str, author, forced=False):
         will_respond = forced

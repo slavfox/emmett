@@ -106,6 +106,7 @@ def make_response(emmett, message, author=""):
             maybe_msg = f"{start} {end}".strip()
             if maybe_msg:
                 msg = maybe_msg
+                logging.info(f"Used '{word}' as anchor")
                 break
     if not msg:
         logger.debug("Responding randomly")
@@ -115,5 +116,5 @@ def make_response(emmett, message, author=""):
     if not msg:
         logging.error("Failed to respond to %s", message)
         msg = random.choice(EMOJI)
-    logger.debug(f"Response: %s", msg)
+    logger.info(f"Response: %s", msg)
     return msg.replace("@", "\\@")
