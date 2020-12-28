@@ -1,0 +1,7 @@
+.idea
+*.json
+*.json.backup
+*.txt
+*.env
+.venv
+bin/
