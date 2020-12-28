@@ -15,12 +15,12 @@ from discord.ext import tasks
 from emmett.commands import COMMANDS
 from emmett.markov import Text, corpus_plus_sentence, make_response
 from emmett.settings import (
+    DATA_DIR,
     DISCORD_TOKEN,
     EMMETT_RESPONSE_PROBABILITY,
     MODEL_PATH,
     REVERSE_MODEL_PATH,
     UNPROMPTED_RESPONSE_PROBABILITY,
-    DATA_DIR
 )
 from helpers import cycle_presence
 
@@ -56,6 +56,8 @@ class Emmett(discord.Client):
                 pass
         elif content == "oof":
             return await self.oof(message)
+        elif content == "what":
+            return await self.wtf(message)
         content = self.sanitize(content)
         response = self.maybe_respond(
             content,
@@ -79,10 +81,13 @@ class Emmett(discord.Client):
     async def oof(message: discord.Message):
         oof_img = random.choice(list(DATA_DIR.glob("oofs/*")))
         with oof_img.open("rb") as f:
-            await message.channel.send(
-                "oof!",
-                file=discord.File(f)
-            )
+            await message.channel.send("oof!", file=discord.File(f))
+
+    @staticmethod
+    async def wtf(message: discord.Message):
+        wtf_img = random.choice(list(DATA_DIR.glob("wtfs/*")))
+        with wtf_img.open("rb") as f:
+            await message.channel.send("what", file=discord.File(f))
 
     def maybe_respond(self, prompt: str, author, forced=False):
         will_respond = forced

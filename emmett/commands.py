@@ -40,6 +40,7 @@ def owner_only(command):
                 f"{random.choice(EMOJI)}"
             )
         return await command(bot, message)
+
     return decorated
 
 
