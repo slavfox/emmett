@@ -47,6 +47,7 @@ def get_start_choices(message: str) -> Tuple[List[str], List[float]]:
     weights = []
     for i, word in enumerate(words[:-1], start=1):
         state = f"{word} {words[i]}".strip()
+        word = word.strip()
         start_states.append(word)
         weights.append(len(word) + i)
         start_states.append(state)

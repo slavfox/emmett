@@ -105,6 +105,7 @@ class Emmett(discord.Client):
             return None
         if random.random() <= IMAGE_RESPONSE_PROBABILITY:
             img = random.choice(list(DATA_DIR.glob(REACTION_GLOB)))
+            logger.info("Responding with image %s", img)
             msg = None
             if random.random() <= IMAGE_TEXT_RESPONSE_PROBABILITY:
                 msg = make_response(
