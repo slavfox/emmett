@@ -82,13 +82,17 @@ class Emmett(discord.Client):
     async def oof(message: discord.Message):
         oof_img = random.choice(list(DATA_DIR.glob(OOF_GLOB)))
         with oof_img.open("rb") as f:
-            await message.channel.send("oof!", file=discord.File(f))
+            await message.channel.send(
+                "oof!", file=discord.File(f, filename=f"oof{oof_img.suffix}")
+            )
 
     @staticmethod
     async def wtf(message: discord.Message):
         wtf_img = random.choice(list(DATA_DIR.glob(WHAT_GLOB)))
         with wtf_img.open("rb") as f:
-            await message.channel.send("what", file=discord.File(f))
+            await message.channel.send(
+                "what", file=discord.File(f, filename=f"what{wtf_img.suffix}")
+            )
 
     async def maybe_respond(self, message, prompt: str):
         will_respond = self.user in message.mentions
@@ -107,7 +111,9 @@ class Emmett(discord.Client):
                     self, prompt, message.author.display_name.lower()
                 )
             with img.open("rb") as f:
-                return await message.channel.send(msg, file=discord.File(f))
+                return await message.channel.send(
+                    msg, file=discord.File(f, filename=f"pensive{img.suffix}")
+                )
 
         return await message.channel.send(
             make_response(self, prompt, message.author.display_name.lower()),
