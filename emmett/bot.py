@@ -18,9 +18,14 @@ from emmett.settings import (
     DATA_DIR,
     DISCORD_TOKEN,
     EMMETT_RESPONSE_PROBABILITY,
+    IMAGE_RESPONSE_PROBABILITY,
+    IMAGE_TEXT_RESPONSE_PROBABILITY,
     MODEL_PATH,
+    OOF_GLOB,
+    REACTION_GLOB,
     REVERSE_MODEL_PATH,
     UNPROMPTED_RESPONSE_PROBABILITY,
+    WHAT_GLOB,
 )
 from helpers import cycle_presence
 
@@ -60,9 +65,8 @@ class Emmett(discord.Client):
             return await self.wtf(message)
         content = self.sanitize(content)
         response = self.maybe_respond(
+            message,
             content,
-            author=message.author.display_name.lower(),
-            forced=self.user in message.mentions,
         )
         if response:
             logger.info("Responded to '%s'", content)
@@ -79,27 +83,38 @@ class Emmett(discord.Client):
 
     @staticmethod
     async def oof(message: discord.Message):
-        oof_img = random.choice(list(DATA_DIR.glob("oofs/*")))
+        oof_img = random.choice(list(DATA_DIR.glob(OOF_GLOB)))
         with oof_img.open("rb") as f:
             await message.channel.send("oof!", file=discord.File(f))
 
     @staticmethod
     async def wtf(message: discord.Message):
-        wtf_img = random.choice(list(DATA_DIR.glob("wtfs/*")))
+        wtf_img = random.choice(list(DATA_DIR.glob(WHAT_GLOB)))
         with wtf_img.open("rb") as f:
             await message.channel.send("what", file=discord.File(f))
 
-    def maybe_respond(self, prompt: str, author, forced=False):
-        will_respond = forced
+    def maybe_respond(self, message, prompt: str):
+        will_respond = self.user in message.mentions
         if (not will_respond) and "emmett" in prompt:
             will_respond = random.random() < EMMETT_RESPONSE_PROBABILITY
         will_respond = will_respond or (
-            random.random() < UNPROMPTED_RESPONSE_PROBABILITY
+            random.random() <= UNPROMPTED_RESPONSE_PROBABILITY
         )
         if not will_respond:
             return None
+        if random.random() <= IMAGE_RESPONSE_PROBABILITY:
+            img = random.choice(list(DATA_DIR.glob(REACTION_GLOB)))
+            msg = None
+            if random.random() <= IMAGE_TEXT_RESPONSE_PROBABILITY:
+                msg = make_response(
+                    self, prompt, message.author.display_name.lower()
+                )
+            with img.open("rb") as f:
+                return await message.channel.send(msg, file=discord.File(f))
 
-        return make_response(self, prompt, author)
+        return await message.channel.send(
+            make_response(self, prompt, message.author.display_name.lower()),
+        )
 
     def sanitize(self, message: str) -> str:
         return re.sub(

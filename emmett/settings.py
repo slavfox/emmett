@@ -16,6 +16,11 @@ MODEL_PATH = Path(DATA_DIR / "model.json")
 REVERSE_MODEL_PATH = Path(DATA_DIR / "reverse_model.json")
 OWNER_ID = 669078523226488833
 
+OOF_GLOB = "oofs/*"
+WHAT_GLOB = "wtfs/*"
+REACTION_GLOB = "reactions/*"
+
+
 # Chance to respond to a message without being prompted
 UNPROMPTED_RESPONSE_PROBABILITY = 0.025
 # Chance to respond to a message when mentioned by name
@@ -32,6 +37,10 @@ END_RESPONSE_PROBABILITY = 0.8
 EMOJI_PROBABILITY = 0.1
 # Chance to use a random top 100 Steam game as the status
 STEAM_STATUS_PROBABILITY = 0.4
+# Chance to send a meme instead of replying
+IMAGE_RESPONSE_PROBABILITY = 0.02
+# Chance to send a meme and text
+IMAGE_TEXT_RESPONSE_PROBABILITY = 0.4
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LOGGING_LEVEL = logging.INFO
