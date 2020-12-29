@@ -64,13 +64,10 @@ class Emmett(discord.Client):
         elif content == "what":
             return await self.wtf(message)
         content = self.sanitize(content)
-        response = self.maybe_respond(
+        await self.maybe_respond(
             message,
             content,
         )
-        if response:
-            logger.info("Responded to '%s'", content)
-            await message.channel.send(response)
         if not self.user in message.mentions:
             self.learn_from(content)
 
@@ -93,7 +90,7 @@ class Emmett(discord.Client):
         with wtf_img.open("rb") as f:
             await message.channel.send("what", file=discord.File(f))
 
-    def maybe_respond(self, message, prompt: str):
+    async def maybe_respond(self, message, prompt: str):
         will_respond = self.user in message.mentions
         if (not will_respond) and "emmett" in prompt:
             will_respond = random.random() < EMMETT_RESPONSE_PROBABILITY
