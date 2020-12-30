@@ -38,7 +38,7 @@ EMOJI_PROBABILITY = 0.1
 # Chance to use a random top 100 Steam game as the status
 STEAM_STATUS_PROBABILITY = 0.4
 # Chance to send a meme instead of replying
-IMAGE_RESPONSE_PROBABILITY = 0.08
+IMAGE_RESPONSE_PROBABILITY = 0.1
 # Chance to send a meme and text
 IMAGE_TEXT_RESPONSE_PROBABILITY = 0.65
 
