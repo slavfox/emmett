@@ -11,14 +11,8 @@ import sys
 from textwrap import dedent
 from time import perf_counter
 
+import emmett.settings as cfg
 import psutil
-from emmett.settings import (
-    EMOJI,
-    MODEL_PATH,
-    OWNER_ID,
-    REPO_ROOT,
-    REVERSE_MODEL_PATH,
-)
 from helpers import choose, cycle_presence, system_temp, vibe
 
 COMMANDS = {}
@@ -34,10 +28,10 @@ def command(regex):
 
 def owner_only(command):
     async def decorated(bot, message):
-        if message.author.id != OWNER_ID:
+        if message.author.id != cfg.OWNER_ID:
             return await message.channel.send(
                 f"Sorry, only fox is authorized to do this "
-                f"{random.choice(EMOJI)}"
+                f"{random.choice(cfg.EMOJI)}"
             )
         return await command(bot, message)
 
@@ -86,7 +80,7 @@ async def reboot(bot, message):
     await message.channel.send("Shutdown in progress...")
     bot.save_corpus()
     await message.channel.send("Corpus backed up :white_check_mark:")
-    subprocess.run(["git", "pull"], cwd=REPO_ROOT.resolve())
+    subprocess.run(["git", "pull"], cwd=cfg.REPO_ROOT.resolve())
     await message.channel.send("Code updated :white_check_mark:")
     await message.channel.send("Rebooting!")
     os.execl(sys.executable, sys.executable, *sys.argv)
@@ -100,8 +94,8 @@ async def diagnostic(bot, message):
     ).stdout.decode("utf-8")
     virtual_memory = psutil.virtual_memory()
     used_memory = (virtual_memory.total - virtual_memory.available) / 1_048_576
-    model_size = os.path.getsize(MODEL_PATH) + os.path.getsize(
-        REVERSE_MODEL_PATH
+    model_size = os.path.getsize(cfg.MODEL_PATH) + os.path.getsize(
+        cfg.REVERSE_MODEL_PATH
     )
     return await message.channel.send(
         dedent(
@@ -119,6 +113,18 @@ async def diagnostic(bot, message):
         Latency: `{bot.latency*1000:n} ms`
         Model size: `{model_size/1_048_576:.3f} MiB`
         Current vibe: {vibe()}
+        
+        **Weights:**
+        base: {cfg.UNPROMPTED_RESPONSE_PROBABILITY}
+        name: {cfg.EMMETT_RESPONSE_PROBABILITY}
+        context: {cfg.CONTEXT_RESPONSE_PROBABILITY}
+        author name: {cfg.AUTHOR_RESPONSE_PROBABILITY}
+        start: {cfg.START_RESPONSE_PROBABILITY}
+        end: {cfg.END_RESPONSE_PROBABILITY}
+        emoji: {cfg.EMOJI_PROBABILITY}
+        steam status: {cfg.STEAM_STATUS_PROBABILITY}
+        image: {cfg.IMAGE_RESPONSE_PROBABILITY}
+        mixed: {cfg.IMAGE_TEXT_RESPONSE_PROBABILITY}
         
         Diagnostic took: `{(perf_counter() - start)*1000:n} ms`
         """

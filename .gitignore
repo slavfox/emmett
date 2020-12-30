@@ -6,3 +6,4 @@
 .venv
 bin/
 emmett/data/
+emmett/settings.py

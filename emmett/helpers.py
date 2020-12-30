@@ -12,16 +12,11 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 import discord
-from emmett.settings import (
-    CHOICE_MSGS,
-    EMOJI,
-    PRESENCES,
-    STEAM_STATUS_PROBABILITY,
-)
+import emmett.settings as cfg
 
 
 def vibe():
-    return EMOJI[int(time() / 100) % len(EMOJI)]
+    return cfg.EMOJI[int(time() / 100) % len(cfg.EMOJI)]
 
 
 def system_temp():
@@ -56,18 +51,18 @@ def choose(msg: discord.Message):
     ]
     if not options:
         raise ValueError("No options provided!")
-    choice_msg = random.choice(CHOICE_MSGS)
+    choice_msg = random.choice(cfg.CHOICE_MSGS)
     return choice_msg.format(random.choice(options))
 
 
 async def cycle_presence(bot):
     activity = None
-    if random.random() < STEAM_STATUS_PROBABILITY:
+    if random.random() < cfg.STEAM_STATUS_PROBABILITY:
         try:
             activity = discord.Game(get_random_top100_steam_game())
         except (URLError, ValueError):
             pass
     if not activity:
-        activity = random.choice(PRESENCES)
+        activity = random.choice(cfg.PRESENCES)
     await bot.change_presence(activity=activity)
     return activity.name

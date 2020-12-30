@@ -7,14 +7,8 @@ import logging
 import random
 from typing import List, Tuple
 
+import emmett.settings as cfg
 import markovify
-from emmett.settings import (
-    AUTHOR_RESPONSE_PROBABILITY,
-    CONTEXT_RESPONSE_PROBABILITY,
-    EMOJI,
-    END_RESPONSE_PROBABILITY,
-    START_RESPONSE_PROBABILITY,
-)
 
 logger = logging.getLogger("emmett")
 
@@ -73,9 +67,9 @@ def make_response(emmett, message, author=""):
     if message.startswith("emmett"):
         message = message[len("emmett") :]
     msg = None
-    if random.random() < AUTHOR_RESPONSE_PROBABILITY:
+    if random.random() < cfg.AUTHOR_RESPONSE_PROBABILITY:
         message += f" {author}"
-    if random.random() < CONTEXT_RESPONSE_PROBABILITY:
+    if random.random() < cfg.CONTEXT_RESPONSE_PROBABILITY:
         logger.debug("Trying to respond with context")
         choices, weights = get_start_choices(message)
         for i in range(10):
@@ -83,7 +77,7 @@ def make_response(emmett, message, author=""):
             end = ""
             word = random.choices(choices, weights)[0]
             logging.debug(f"Attempt %s: using '%s' as seed", i, word)
-            if random.random() < START_RESPONSE_PROBABILITY:
+            if random.random() < cfg.START_RESPONSE_PROBABILITY:
                 try:
                     start = emmett.reverse_corpus.make_sentence_with_start(
                         word[::-1], strict=False
@@ -92,7 +86,7 @@ def make_response(emmett, message, author=""):
                     pass
                 except (markovify.text.ParamError, ValueError) as e:
                     pass
-            if random.random() < END_RESPONSE_PROBABILITY:
+            if random.random() < cfg.END_RESPONSE_PROBABILITY:
                 try:
                     word = random.choices(choices, weights)[0]
                     end = emmett.corpus.make_sentence_with_start(
@@ -113,9 +107,9 @@ def make_response(emmett, message, author=""):
         logger.debug("Responding randomly")
         msg = emmett.corpus.make_sentence(tries=100)
     elif random.random() < 0.1:
-        msg += " " + random.choice(EMOJI)
+        msg += " " + random.choice(cfg.EMOJI)
     if not msg:
         logging.error("Failed to respond to %s", message)
-        msg = random.choice(EMOJI)
+        msg = random.choice(cfg.EMOJI)
     logger.info(f"Response: %s", msg)
     return msg.replace("@", "\\@")

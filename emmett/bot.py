@@ -9,24 +9,13 @@ import logging
 import random
 import re
 import shutil
+from importlib import reload
 
 import discord
+import emmett.settings as cfg
 from discord.ext import tasks
 from emmett.commands import COMMANDS
 from emmett.markov import Text, corpus_plus_sentence, make_response
-from emmett.settings import (
-    DATA_DIR,
-    DISCORD_TOKEN,
-    EMMETT_RESPONSE_PROBABILITY,
-    IMAGE_RESPONSE_PROBABILITY,
-    IMAGE_TEXT_RESPONSE_PROBABILITY,
-    MODEL_PATH,
-    OOF_GLOB,
-    REACTION_GLOB,
-    REVERSE_MODEL_PATH,
-    UNPROMPTED_RESPONSE_PROBABILITY,
-    WHAT_GLOB,
-)
 from helpers import cycle_presence
 
 logging.basicConfig(level=logging.INFO)
@@ -39,9 +28,9 @@ class Emmett(discord.Client):
         self.current_presence = None
         self.corpus = None
         self.reverse_corpus = None
-        with MODEL_PATH.open() as f:
+        with cfg.MODEL_PATH.open() as f:
             self.corpus = Text.from_dict(json.load(f))
-        with REVERSE_MODEL_PATH.open() as f:
+        with cfg.REVERSE_MODEL_PATH.open() as f:
             self.reverse_corpus = Text.from_dict(json.load(f))
         atexit.register(self.save_corpus)
 
@@ -52,6 +41,7 @@ class Emmett(discord.Client):
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
+        reload(cfg)
         content = message.content.lower()
         is_command = content.startswith("emmett: ")
         if is_command:
@@ -80,7 +70,7 @@ class Emmett(discord.Client):
 
     @staticmethod
     async def oof(message: discord.Message):
-        oof_img = random.choice(list(DATA_DIR.glob(OOF_GLOB)))
+        oof_img = random.choice(list(cfg.DATA_DIR.glob(cfg.OOF_GLOB)))
         with oof_img.open("rb") as f:
             await message.channel.send(
                 "oof!", file=discord.File(f, filename=f"oof{oof_img.suffix}")
@@ -88,7 +78,7 @@ class Emmett(discord.Client):
 
     @staticmethod
     async def wtf(message: discord.Message):
-        wtf_img = random.choice(list(DATA_DIR.glob(WHAT_GLOB)))
+        wtf_img = random.choice(list(cfg.DATA_DIR.glob(cfg.WHAT_GLOB)))
         with wtf_img.open("rb") as f:
             await message.channel.send(
                 "what", file=discord.File(f, filename=f"what{wtf_img.suffix}")
@@ -97,17 +87,17 @@ class Emmett(discord.Client):
     async def maybe_respond(self, message, prompt: str):
         will_respond = self.user in message.mentions
         if (not will_respond) and "emmett" in prompt:
-            will_respond = random.random() < EMMETT_RESPONSE_PROBABILITY
+            will_respond = random.random() < cfg.EMMETT_RESPONSE_PROBABILITY
         will_respond = will_respond or (
-            random.random() <= UNPROMPTED_RESPONSE_PROBABILITY
+            random.random() <= cfg.UNPROMPTED_RESPONSE_PROBABILITY
         )
         if not will_respond:
             return None
-        if random.random() <= IMAGE_RESPONSE_PROBABILITY:
-            img = random.choice(list(DATA_DIR.glob(REACTION_GLOB)))
+        if random.random() <= cfg.IMAGE_RESPONSE_PROBABILITY:
+            img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
             logger.info("Responding with image %s", img)
             msg = None
-            if random.random() <= IMAGE_TEXT_RESPONSE_PROBABILITY:
+            if random.random() <= cfg.IMAGE_TEXT_RESPONSE_PROBABILITY:
                 msg = make_response(
                     self, prompt, message.author.display_name.lower()
                 )
@@ -133,13 +123,14 @@ class Emmett(discord.Client):
 
     def save_corpus(self):
         logger.info("Saving corpus backup...")
-        with MODEL_PATH.with_suffix(".json.backup").open("w") as f:
+        with cfg.MODEL_PATH.with_suffix(".json.backup").open("w") as f:
             f.write(self.corpus.to_json())
-        shutil.copy(MODEL_PATH.with_suffix(".json.backup"), MODEL_PATH)
-        with REVERSE_MODEL_PATH.with_suffix(".json.backup").open("w") as f:
+        shutil.copy(cfg.MODEL_PATH.with_suffix(".json.backup"), cfg.MODEL_PATH)
+        with cfg.REVERSE_MODEL_PATH.with_suffix(".json.backup").open("w") as f:
             f.write(self.reverse_corpus.to_json())
         shutil.copy(
-            REVERSE_MODEL_PATH.with_suffix(".json.backup"), REVERSE_MODEL_PATH
+            cfg.REVERSE_MODEL_PATH.with_suffix(".json.backup"),
+            cfg.REVERSE_MODEL_PATH,
         )
         logger.info("Done!")
 
@@ -149,4 +140,4 @@ class Emmett(discord.Client):
 emmett = Emmett()
 
 if __name__ == "__main__":
-    emmett.run(DISCORD_TOKEN)
+    emmett.run(cfg.DISCORD_TOKEN)
