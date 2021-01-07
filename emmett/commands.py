@@ -14,6 +14,7 @@ from time import perf_counter
 import emmett.settings as cfg
 import psutil
 from helpers import choose, cycle_presence, system_temp, vibe
+from discord import File
 
 COMMANDS = {}
 
@@ -72,6 +73,16 @@ async def backup(bot, message):
         f"Model backed up in {perf_counter()-start:2f} seconds "
         f":white_check_mark:"
     )
+
+
+@command("^image$")
+@owner_only
+async def image(bot, message):
+    img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
+    with img.open("rb") as f:
+        return await message.channel.send(
+            file=File(f, filename=f"pensive{img.suffix}")
+        )
 
 
 @command("^reboot$")
