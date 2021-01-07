@@ -76,7 +76,6 @@ async def backup(bot, message):
 
 
 @command("^image$")
-@owner_only
 async def image(bot, message):
     img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
     with img.open("rb") as f:
