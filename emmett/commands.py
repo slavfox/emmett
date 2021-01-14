@@ -80,7 +80,7 @@ async def backup(bot, message):
 @command("^image ")
 async def image(bot, message):
     filename = message.content.split()[-1]
-    logger.info("Trying to send image %s", filename)
+    logger.info("trying to send %s", repr((cfg.DATA_DIR / filename).resolve()))
     if (cfg.DATA_DIR / filename).is_file():
         img = cfg.DATA_DIR / filename
     else:
