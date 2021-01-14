@@ -75,9 +75,13 @@ async def backup(bot, message):
     )
 
 
-@command("^image$")
+@command("^image ")
 async def image(bot, message):
-    img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
+    filename = message.content.split()[-1]
+    if (cfg.DATA_DIR / filename).is_file():
+        img = cfg.DATA_DIR / filename
+    else:
+        img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
     with img.open("rb") as f:
         return await message.channel.send(
             file=File(f, filename=f"pensive{img.suffix}")
