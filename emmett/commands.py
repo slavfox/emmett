@@ -10,6 +10,7 @@ import subprocess
 import sys
 from textwrap import dedent
 from time import perf_counter
+import logging
 
 import emmett.settings as cfg
 import psutil
@@ -17,6 +18,7 @@ from helpers import choose, cycle_presence, system_temp, vibe
 from discord import File
 
 COMMANDS = {}
+logger = logging.getLogger("emmett")
 
 
 def command(regex):
@@ -78,6 +80,7 @@ async def backup(bot, message):
 @command("^image ")
 async def image(bot, message):
     filename = message.content.split()[-1]
+    logger.info("Trying to send image %s", filename)
     if (cfg.DATA_DIR / filename).is_file():
         img = cfg.DATA_DIR / filename
     else:
