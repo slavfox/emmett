@@ -77,14 +77,17 @@ async def backup(bot, message):
     )
 
 
-@command("^image ")
+@command("^image")
 async def image(bot, message):
-    filename = message.content.split()[-1].replace("..", "")
-    path = cfg.DATA_DIR / "reactions" / filename
-    logger.info("trying to send %s", repr(path.resolve()))
-    if path.is_file():
-        img = path
-    else:
+    img = None
+    parts = message.content.split()
+    if len(parts) > 1:
+        filename = message.content.split()[-1].replace("..", "")
+        path = cfg.DATA_DIR / "reactions" / filename
+        logger.info("trying to send %s", repr(path.resolve()))
+        if path.is_file():
+            img = path
+    if not img:
         img = random.choice(list(cfg.DATA_DIR.glob(cfg.REACTION_GLOB)))
     with img.open("rb") as f:
         return await message.channel.send(
