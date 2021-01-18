@@ -3,6 +3,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+import logging
 import os
 import random
 import socket
@@ -10,12 +11,11 @@ import subprocess
 import sys
 from textwrap import dedent
 from time import perf_counter
-import logging
 
 import emmett.settings as cfg
 import psutil
-from helpers import choose, cycle_presence, system_temp, vibe
 from discord import File
+from helpers import choose, cycle_presence, system_temp, vibe
 
 COMMANDS = {}
 logger = logging.getLogger("emmett")

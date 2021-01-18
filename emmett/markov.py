@@ -65,7 +65,7 @@ def corpus_plus_sentence(sentence: str, corpus: Text) -> Text:
 
 def make_response(emmett, message, author=""):
     if message.strip().startswith("vibe check "):
-        message = message[len("vibe check "):].strip()
+        message = message[len("vibe check ") :].strip()
     if message.startswith("emmett"):
         message = message[len("emmett") :].strip()
     msg = None
