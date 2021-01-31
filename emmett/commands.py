@@ -83,6 +83,8 @@ async def image(bot, message):
     parts = message.content.split()
     if len(parts) > 1:
         filename = message.content.split()[-1].replace("..", "")
+        if filename.startswith("/"):
+            filename = filename[1:]
         path = cfg.DATA_DIR / "reactions" / filename
         logger.info("trying to send %s", repr(path.resolve()))
         if path.is_file():
