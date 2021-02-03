@@ -39,7 +39,7 @@ class Emmett(discord.Client):
         self.cycle_presence.start()
 
     async def on_message(self, message: discord.Message):
-        if message.author == self.user:
+        if message.author == self.user or message.content.startswith('.'):
             return
         reload(cfg)
         content = message.content.lower()
