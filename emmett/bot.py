@@ -43,6 +43,8 @@ class Emmett(discord.Client):
             return
         reload(cfg)
         content = message.content.lower()
+        if any([word in content for word in cfg.BLOCKLIST]):
+            return await message.add_reaction(cfg.BLOCKLIST_TRIGGER_REACTION)
         is_command = content.startswith("emmett: ")
         if is_command:
             try:
