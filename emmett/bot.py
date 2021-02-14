@@ -88,6 +88,7 @@ class Emmett(discord.Client):
 
     async def maybe_respond(self, message, prompt: str):
         will_respond = self.user in message.mentions
+        reply = will_respond
         if (not will_respond) and "emmett" in prompt:
             will_respond = random.random() < cfg.EMMETT_RESPONSE_PROBABILITY
         will_respond = will_respond or (
@@ -107,10 +108,10 @@ class Emmett(discord.Client):
                 return await message.channel.send(
                     msg, file=discord.File(f, filename=f"pensive{img.suffix}")
                 )
-
-        return await message.channel.send(
-            make_response(self, prompt, message.author.display_name.lower()),
-        )
+        response = make_response(self, prompt, message.author.display_name.lower())
+        if reply:
+            return await message.reply(response)
+        return await message.channel.send(response)
 
     def sanitize(self, message: str) -> str:
         return re.sub(
