@@ -16,7 +16,7 @@ import emmett.settings as cfg
 
 
 def vibe():
-    return cfg.EMOJI[int(time() / 100) % len(cfg.EMOJI)]
+    return cfg.EMOJI[hash(str(int(time() / 100))) % len(cfg.EMOJI)]
 
 
 def system_temp():
